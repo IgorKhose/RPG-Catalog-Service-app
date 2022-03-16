@@ -1,0 +1,15 @@
+{
+  "version": 2,
+  "dgSpecHash": "va6varwmg2lTTWrIwHT3AbOZZQPrapCUJfeZ4crw28Wa/tASWI6Y4OhxxNy/rgTOsjZOqHqwoccoCKphEZhj9g==",
+  "success": true,
+  "projectFilePath": "/Users/igorkhose/Desktop/Microsoft_LEARN/_.NET Microservices – Full Course/Play.Catalog/src/Play.Catalog.Service/Play.Catalog.Service.csproj",
+  "expectedPackageFiles": [
+    "/Users/igorkhose/.nuget/packages/microsoft.extensions.apidescription.server/3.0.0/microsoft.extensions.apidescription.server.3.0.0.nupkg.sha512",
+    "/Users/igorkhose/.nuget/packages/microsoft.openapi/1.2.3/microsoft.openapi.1.2.3.nupkg.sha512",
+    "/Users/igorkhose/.nuget/packages/swashbuckle.aspnetcore/6.2.3/swashbuckle.aspnetcore.6.2.3.nupkg.sha512",
+    "/Users/igorkhose/.nuget/packages/swashbuckle.aspnetcore.swagger/6.2.3/swashbuckle.aspnetcore.swagger.6.2.3.nupkg.sha512",
+    "/Users/igorkhose/.nuget/packages/swashbuckle.aspnetcore.swaggergen/6.2.3/swashbuckle.aspnetcore.swaggergen.6.2.3.nupkg.sha512",
+    "/Users/igorkhose/.nuget/packages/swashbuckle.aspnetcore.swaggerui/6.2.3/swashbuckle.aspnetcore.swaggerui.6.2.3.nupkg.sha512"
+  ],
+  "logs": []
+}
