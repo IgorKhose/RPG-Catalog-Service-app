@@ -1,8 +1,12 @@
 // Contoller to manage catalog items
 using System;
 using Microsoft.AspNetCore.Mvc;
+using System.Linq;
+using System.Threading.Tasks;
 using System.Collections.Generic;
 using Play.Catalog.Service.Dtos;
+using Play.Catalog.Service.Repositories;
+using Play.Catalog.Service.Entities;
 
 namespace Play.Catalog.Service.Controllers
 { // derive from ControllerBase class for method and properties to handle Http requests
@@ -10,63 +14,63 @@ namespace Play.Catalog.Service.Controllers
     [Route("items")] // attribute url patterns, so if https://localhost:7031/items/ - than this controller will be used to handle requests
     public class ItemsContoller: ControllerBase
     {
-        // static list that is used as a database
-        private static readonly List<ItemDto> items = new()
-        {
-            new ItemDto(Guid.NewGuid(), "Potion", "Restores a small amount og HP", 5, DateTimeOffset.UtcNow),
-            new ItemDto(Guid.NewGuid(), "Antidote", "Cures poison", 7, DateTimeOffset.UtcNow),
-            new ItemDto(Guid.NewGuid(), "Bronze Sword", "Deals a small amount of damage", 20, DateTimeOffset.UtcNow),
-        };
+       private readonly ItemRepository itemRepository = new();
         [HttpGet]
-        public IEnumerable<ItemDto> Get()
+        public async Task<IEnumerable<ItemDto>> GetAsync()
         {
+            var items = (await itemRepository.GetAllAsync())
+                        .Select(item => item.AsDto());
+
             return items;
         }
 
         // GET /items/12345 -> {id}
         [HttpGet("{id}")]        
-        public ActionResult<ItemDto> GetById(Guid id)
+        public async Task<ActionResult<ItemDto>> GetByIdAsync(Guid id)
         {
-            var item = items.Where(item => item.Id == id).SingleOrDefault();
+            var item = await itemRepository.GetAsync(id);
             // check if an item exists
             if(item == null)
             {
                 return NotFound();
             }
-            return item;
+            return item.AsDto();
         }
         // methods returns a type of http status codes: 200(OK), 400(bad request)
         // whoever calls method must follow create item dto contract
         // POST /items
         [HttpPost]
-        public ActionResult<ItemDto> Post(CreateItemDto createItemDto)
+        public async Task<ActionResult<ItemDto>> PostAsync(CreateItemDto createItemDto)
         {
-            var item = new ItemDto(Guid.NewGuid(), createItemDto.Name, createItemDto.Description, createItemDto.Price, DateTimeOffset.UtcNow);
-            items.Add(item);
+            // var item = new ItemDto(Guid.NewGuid(), createItemDto.Name, createItemDto.Description, createItemDto.Price, DateTimeOffset.UtcNow);
+            // items.Add(item);
+            var item = new Item
+            {
+                Name = createItemDto.Name,
+                Description = createItemDto.Description,
+                Price = createItemDto.Price,
+                CreatedDate = DateTimeOffset.UtcNow
 
-            return CreatedAtAction(nameof(GetById), new {id = item.Id}, item);
+            };
+            await itemRepository.CreateAsync(item);
+            return CreatedAtAction(nameof(GetByIdAsync), new {id = item.Id}, item);
         }
 
         // PUT /items/{id}
         [HttpPut("{id}")]
-        public IActionResult Put(Guid id, UpdateItemDto updateItemDto)
+        public async Task<IActionResult> PutAsync(Guid id, UpdateItemDto updateItemDto)
         {
-            var existingItem = items.Where(item => item.Id == id).SingleOrDefault();
-
+            var existingItem = await itemRepository.GetAsync(id);
             if(existingItem == null)
             {
                 return NotFound();
             }
 
-            var updateItem = existingItem with {
-                Name = updateItemDto.Name,
-                Description = updateItemDto.Description,
-                Price = updateItemDto.Price
-            };
+            existingItem.Name = updateItemDto.Name;
+            existingItem.Description = updateItemDto.Description;
+            existingItem.Price = updateItemDto.Price;
 
-            var index = items.FindIndex(existingItem => existingItem.Id == id);
-
-            items[index] = updateItem;
+            await itemRepository.UpdateAsync(existingItem);
         // When you call return NoContent(), it returns the StatusCodeResult NoContentResult,
         // translates to calling StatusCode(204)
             return NoContent();
@@ -74,14 +78,15 @@ namespace Play.Catalog.Service.Controllers
 
         // DELETE /items/{id}
         [HttpDelete("{id}")]
-        public IActionResult Delete(Guid id)
+        public async Task<IActionResult> DeleteAsync(Guid id)
         {
-            var index = items.FindIndex(existingItem => existingItem.Id == id);
-            if(index < 0)
+            var item = await itemRepository.GetAsync(id);
+            if(item == null)
             {
                 return NotFound();
             }
-            items.RemoveAt(index);
+
+            await itemRepository.RemoveAsync(item.Id);
             return NoContent();
 
         }

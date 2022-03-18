@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Mongodb.Driver;
+using MongoDB.Driver;
 using Play.Catalog.Service.Entities;
 
 namespace Play.Catalog.Service.Repositories
